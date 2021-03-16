@@ -9,7 +9,7 @@ import (
 )
 
 // TODO: 可配置
-const kubeConfigPath = "/home/ashing/.kube/kind-config-second-k8s-cluster"
+const kubeConfigPath = "/home/ashing/.kube/kind-config-third-k8s-cluster"
 
 // 初始化 k8s 客户端
 func InitClient() (clientset *kubernetes.Clientset, err error) {
