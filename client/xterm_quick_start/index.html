@@ -1,0 +1,35 @@
+<!doctype html>
+<html>
+<head>
+    <link rel="stylesheet" href="node_modules/xterm/dist/xterm.css"/>
+    <script src="node_modules/xterm/dist/xterm.js"></script>
+    <script src="node_modules/xterm/dist/addons/fit/fit.js"></script>
+</head>
+<body>
+<div id="terminal"></div>
+<script>
+    Terminal.applyAddon(fit);
+    var term = new Terminal();
+    term.open(document.getElementById("terminal"));
+    term.fit();
+
+    window.addEventListener("resize", function () {
+        term.fit();
+        console.log(term.rows + "," + term.cols);
+    })
+
+    term.focus();
+
+    term.on("data", function (input) {
+        // TODO: websocket
+        console.log("输入:" + input);
+        term.write(input)
+    })
+
+    //持续输出终端测试
+    setInterval(function () {
+        term.write("hello k8s\n");
+    }, 3000)
+</script>
+</body>
+</html>
