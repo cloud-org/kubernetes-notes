@@ -5,6 +5,7 @@
 - [xterm web attach container](#xterm-web-attach-container)
   - [dev](#dev)
   - [problem](#problem)
+  - [usage](#usage)
   - [acknowledgement](#acknowledgement)
 
 <!-- END doctoc generated TOC please keep comment here to allow auto update -->
@@ -28,6 +29,26 @@ kubectl exec -it nginx-deployment-66b6c48dd5-9bw5x -- env LANG=C.UTF-8 /bin/bash
 
 - Invalid UTF-8 in text frame, 使用 base64 先编码，传到前端再解码
 - atob 原生不支持中文解码, 使用 webtoolkit Base64
+
+### usage
+
+- native
+
+```
+go run main.go
+```
+
+- echo
+
+```
+go run echo/main.go
+```
+
+- gin
+
+```
+go run gin/main.go
+```
 
 ### acknowledgement
 
