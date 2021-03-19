@@ -29,10 +29,10 @@ func WsHandler(resp http.ResponseWriter, req *http.Request) {
 		return
 	}
 	// 之后如果发生错误，需要将 wsConn 连接关闭
+	defer wsConn.Close()
 
 	restConf, err := util.GetRestConf()
 	if err != nil {
-		wsConn.Close()
 		log.Printf("get rest conf err:%v\n", err)
 		return
 	}
@@ -55,7 +55,6 @@ func WsHandler(resp http.ResponseWriter, req *http.Request) {
 
 	executor, err := remotecommand.NewSPDYExecutor(restConf, "POST", sshReq.URL())
 	if err != nil {
-		wsConn.Close()
 		log.Printf("init executor err:%v\n", err)
 		return
 	}
@@ -69,7 +68,6 @@ func WsHandler(resp http.ResponseWriter, req *http.Request) {
 		TerminalSizeQueue: handler,
 	})
 	if err != nil {
-		wsConn.Close()
 		log.Printf("fix stream handler err:%v\n", err)
 		return
 	}

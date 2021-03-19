@@ -25,12 +25,12 @@ func echoWsHandler(c echo.Context) error {
 		return c.JSON(http.StatusInternalServerError, "error")
 	}
 	// 之后如果发生错误，需要将 wsConn 连接关闭
+	defer wsConn.Close()
 
 	restConf, err := util.GetRestConf()
 	if err != nil {
-		wsConn.Close()
 		log.Printf("get rest conf err:%v\n", err)
-		return c.JSON(http.StatusInternalServerError, "error")
+		return err
 	}
 
 	sshReq := storage.KubeClient.CoreV1().RESTClient().Post().
@@ -51,9 +51,8 @@ func echoWsHandler(c echo.Context) error {
 
 	executor, err := remotecommand.NewSPDYExecutor(restConf, "POST", sshReq.URL())
 	if err != nil {
-		wsConn.Close()
 		log.Printf("init executor err:%v\n", err)
-		return c.JSON(http.StatusInternalServerError, "error")
+		return err
 	}
 
 	handler := storage.NewStreamHandler(wsConn, make(chan remotecommand.TerminalSize))
@@ -65,12 +64,11 @@ func echoWsHandler(c echo.Context) error {
 		TerminalSizeQueue: handler,
 	})
 	if err != nil {
-		wsConn.Close()
 		log.Printf("fix stream handler err:%v\n", err)
-		return c.JSON(http.StatusInternalServerError, "error")
+		return err
 	}
 
-	return c.JSON(http.StatusOK, "connect success")
+	return nil
 }
 
 func addMiddleware(e *echo.Echo) {

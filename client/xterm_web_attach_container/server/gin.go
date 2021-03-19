@@ -21,15 +21,16 @@ func ginWsHandler(c *gin.Context) {
 	wsConn, err := storage.NewWsConnection(c.Writer, c.Request)
 	if err != nil {
 		log.Printf("init ws connect err:%v\n", err)
-		c.JSON(http.StatusInternalServerError, "error")
+		c.JSON(http.StatusInternalServerError, "init websocket error")
+		return
 	}
 	// 之后如果发生错误，需要将 wsConn 连接关闭
+	defer wsConn.Close()
 
 	restConf, err := util.GetRestConf()
 	if err != nil {
-		wsConn.Close()
 		log.Printf("get rest conf err:%v\n", err)
-		c.JSON(http.StatusInternalServerError, "error")
+		return
 	}
 
 	sshReq := storage.KubeClient.CoreV1().RESTClient().Post().
@@ -50,12 +51,12 @@ func ginWsHandler(c *gin.Context) {
 
 	executor, err := remotecommand.NewSPDYExecutor(restConf, "POST", sshReq.URL())
 	if err != nil {
-		wsConn.Close()
 		log.Printf("init executor err:%v\n", err)
-		c.JSON(http.StatusInternalServerError, "error")
+		return
 	}
 
 	handler := storage.NewStreamHandler(wsConn, make(chan remotecommand.TerminalSize))
+	// 注: Stream 这里会阻塞
 	err = executor.Stream(remotecommand.StreamOptions{
 		Stdin:             handler,
 		Stdout:            handler,
@@ -64,12 +65,12 @@ func ginWsHandler(c *gin.Context) {
 		TerminalSizeQueue: handler,
 	})
 	if err != nil {
-		wsConn.Close()
 		log.Printf("fix stream handler err:%v\n", err)
-		c.JSON(http.StatusInternalServerError, "error")
+		return
 	}
 
-	c.JSON(http.StatusOK, "connect ok")
+	//终端 exit 之后会走到这里
+	return
 }
 
 //addGinApi
