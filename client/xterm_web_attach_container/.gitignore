@@ -1,0 +1,4 @@
+node_modules/
+package-lock.json
+
+xterm_web_attach_container

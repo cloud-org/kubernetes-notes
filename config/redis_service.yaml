@@ -1,0 +1,14 @@
+kind: Service
+apiVersion: v1
+metadata:
+  name: redis-service
+spec:
+  selector:
+    app: redis
+    role: master
+    tier: backend
+  ports:
+    - name: redis
+      protocol: TCP
+      port: 9898
+      targetPort: 6379
