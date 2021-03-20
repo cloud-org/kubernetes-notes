@@ -41,7 +41,6 @@ func main() {
 		Follow:    true,
 		//TailLines: &tailLines,
 	})
-	clientset.AppsV1()
 	fmt.Println(req.URL())
 
 	ctx := context.TODO()
