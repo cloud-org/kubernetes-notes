@@ -1,39 +1,26 @@
 package server
 
 import (
-	"bufio"
 	"context"
-	"encoding/json"
 	"fmt"
 	"kubernetes-notes/client/pod_container_logs/storage"
 	"log"
 	"net/http"
-
-	"github.com/gorilla/websocket"
 
 	"github.com/labstack/echo/v4"
 	"github.com/labstack/echo/v4/middleware"
 	v1 "k8s.io/api/core/v1"
 )
 
-//XtermMessage
-//resize 字段类型参考 remotecommand.TerminalSize
-type XtermMessage struct {
-	MsgType string `json:"msgtype"`
-	Input   string `json:"input"` // use when msg type is input
-	Rows    uint16 `json:"rows"`  // use when msg type is resize
-	Cols    uint16 `json:"cols"`  // use when msg type is resize
-}
-
 //WsHandler ssh controller
 func echoWsHandler(c echo.Context) error {
-	//podNs := c.QueryParam("podNs")
-	//podName := c.QueryParam("podName")
-	//containerName := c.QueryParam("containerName")
+	podNs := c.QueryParam("podNs")
+	podName := c.QueryParam("podName")
+	containerName := c.QueryParam("containerName")
 
-	podNs := "default"
-	podName := "nginx-deployment-66b6c48dd5-9bw5x"
-	containerName := "nginx"
+	//podNs := "default"
+	//podName := "nginx-deployment-66b6c48dd5-9bw5x"
+	//containerName := "nginx"
 
 	wsConn, err := storage.NewWsConnection(c.Response(), c.Request())
 	if err != nil {
@@ -56,65 +43,16 @@ func echoWsHandler(c echo.Context) error {
 	}
 	defer readCloser.Close()
 
-	// TODO: websocket readCloser handler struct
+	// websocket readCloser handler struct
+	returnChan := make(chan bool)
+	logStreamHandler := storage.NewLogStreamHandler(readCloser, wsConn, returnChan)
+	logStreamHandler.Handle()
 
-	r := bufio.NewReader(readCloser)
-	go func() {
-		for {
-			bytes, err := r.ReadBytes('\n')
-			if err != nil {
-				log.Println("read err", err.Error())
-				return
-			}
-			//fmt.Println(string(bytes))
-			//dst := make([]byte, base64.StdEncoding.EncodedLen(len(bytes)))
-			//base64.StdEncoding.Encode(dst, bytes)
-			err = wsConn.Write(websocket.TextMessage, bytes)
-			if err != nil {
-				log.Println("ws write msg err", err.Error())
-				return
-			}
-		}
-	}()
-
-	msg, err := wsConn.Read()
-	if err != nil {
-		log.Println("ws read err", err)
-		return nil
-	}
-	var xtermMessage XtermMessage
-	if err = json.Unmarshal(msg.Data, &xtermMessage); err != nil {
-		log.Println(err)
-		return nil
-	}
+	<-returnChan
+	log.Println("ws api return")
 
 	return nil
-	//	var
-	//	for {
-	//		msg, err = wsConn.Read()
-	//		if err != nil {
-	//			return
-	//		}
-	//		if err = json.Unmarshal(msg.Data, &xtermMessage); err != nil {
-	//			return
-	//		}
-	//		log.Printf("xterm msg is %+v\n", xtermMessage)
-	//		switch xtermMessage.MsgType {
-	//		case INPUT:
-	//			size = len(xtermMessage.Input)
-	//			copy(p, xtermMessage.Input)
-	//		case RESIZE:
-	//			sh.resizeEvent <- remotecommand.TerminalSize{
-	//				Width:  xtermMessage.Cols,
-	//				Height: xtermMessage.Rows,
-	//			}
-	//		}
-	//	}
-	//}()
 
-	//<- closeChan // TODO: if goroutine1 or goroutine2 exist
-
-	//return nil
 }
 
 func addMiddleware(e *echo.Echo) {

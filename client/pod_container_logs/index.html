@@ -1,0 +1,99 @@
+<!doctype html>
+<html>
+<head>
+    <link rel="stylesheet" href="node_modules/xterm/dist/xterm.css"/>
+    <script src="node_modules/xterm/dist/xterm.js"></script>
+    <script src="node_modules/xterm/dist/addons/fit/fit.js"></script>
+    <script src="node_modules/xterm/dist/addons/winptyCompat/winptyCompat.js"></script>
+    <script src="node_modules/xterm/dist/addons/webLinks/webLinks.js"></script>
+    <script src="./base64.js"></script>
+</head>
+<body>
+<form>
+    namespace: <input type="text" id="podNs">
+    podName: <input type="text" id="podName">
+    containerName: <input type="text" id="containerName">
+    <input id="ssh" type="button" value="ssh">
+    <input id="close" type="button" value="close">
+</form>
+<div id="terminal" style="margin-top: 10px"></div>
+<script>
+    // xterm 配置自适应大小插件
+    Terminal.applyAddon(fit);
+
+    // 这俩插件不知道干嘛的, 用总比不用好
+    Terminal.applyAddon(winptyCompat)
+    Terminal.applyAddon(webLinks)
+
+    // 新建终端
+    function openTerminal() {
+        // 创建终端
+        var term = new Terminal();
+        term.open(document.getElementById('terminal'));
+
+        // 使用 fit 插件自适应 terminal size
+        term.fit();
+        term.winptyCompatInit()
+        term.webLinksInit()
+
+        // 取得输入焦点
+        term.focus();
+
+        // 获取要连接的容器信息
+        var podNs = document.getElementById("podNs").value
+        var podName = document.getElementById("podName").value
+        var containerName = document.getElementById("containerName").value
+        console.log("podNs", podNs, "podName", podName, "containerName", containerName)
+
+        // 连接 websocket
+        ws = new WebSocket("ws://localhost:7777/ssh?" + "podNs=" + podNs + "&podName=" + podName + "&containerName=" + containerName);
+        // ws.binaryType = 'arraybuffer'
+        ws.onopen = function (event) {
+            console.log("onopen")
+        }
+        ws.onclose = function (event) {
+            console.log("onclose")
+        }
+        ws.onmessage = function (event) {
+            // 服务端 ssh 输出, 写到 web shell 展示
+            console.log(event)
+            // atob(event.data)
+            // term.write(atob(event.data)) 不支持中文
+            term.writeln(Base64.decode(event.data))
+        }
+        ws.onerror = function (event) {
+            console.log("onerror")
+        }
+
+        // 当浏览器窗口变化时, 重新适配终端
+        window.addEventListener("resize", function () {
+            term.fit()
+
+            // 把 web 终端的尺寸 term.rows 和 term.cols 发给服务端, 通知 sshd 调整输出宽度
+            var msg = {msgtype: "resize", rows: term.rows, cols: term.cols}
+            ws.send(JSON.stringify(msg))
+
+            // console.log(term.rows + "," + term.cols)
+        })
+
+        // 当向 web 终端敲入字符时候的回调
+        term.on('data', function (input) {
+            // 写给服务端, 由服务端发给 container
+            var msg = {msgtype: "input", input: input}
+            ws.send(JSON.stringify(msg))
+        })
+    }
+
+    document.getElementById("close").addEventListener("click", function () {
+        console.log("close websocket conn")
+        ws.close()
+    })
+
+    // 点击 ssh 建立 websocket 连接, 启动 xterm 终端
+    document.getElementById("ssh").addEventListener("click", function () {
+        document.getElementById('terminal').innerHTML = ""
+        openTerminal()
+    })
+</script>
+</body>
+</html>
