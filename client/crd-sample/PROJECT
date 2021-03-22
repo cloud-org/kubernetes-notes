@@ -1,0 +1,7 @@
+domain: ronething.cn
+repo: crd-sample
+resources:
+- group: webapp
+  kind: Website
+  version: v1
+version: "2"
