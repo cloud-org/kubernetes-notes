@@ -15,6 +15,8 @@ spec:
     plural: websites
     singular: website
   scope: Namespaced
+  subresources:
+    status: {}
   validation:
     openAPIV3Schema:
       description: Website is the Schema for the websites API
@@ -34,13 +36,26 @@ spec:
         spec:
           description: WebsiteSpec defines the desired state of Website
           properties:
-            foo:
+            firstname:
               description: Foo is an example field of Website. Edit Website_types.go
-                to remove/update
+                to remove/update Foo string `json:"foo,omitempty"`
               type: string
+            lastname:
+              type: string
+          required:
+          - firstname
+          - lastname
           type: object
         status:
           description: WebsiteStatus defines the observed state of Website
+          properties:
+            Status:
+              description: 'INSERT ADDITIONAL STATUS FIELD - define observed state
+                of cluster Important: Run "make" to regenerate code after modifying
+                this file'
+              type: string
+          required:
+          - Status
           type: object
       type: object
   version: v1

@@ -29,16 +29,21 @@ type WebsiteSpec struct {
 	// Important: Run "make" to regenerate code after modifying this file
 
 	// Foo is an example field of Website. Edit Website_types.go to remove/update
-	Foo string `json:"foo,omitempty"`
+	//Foo string `json:"foo,omitempty"`
+	FirstName string `json:"firstname"`
+	LastName  string `json:"lastname"`
 }
 
 // WebsiteStatus defines the observed state of Website
 type WebsiteStatus struct {
 	// INSERT ADDITIONAL STATUS FIELD - define observed state of cluster
 	// Important: Run "make" to regenerate code after modifying this file
+	Status string `json:"Status"`
 }
 
 // +kubebuilder:object:root=true
+// add status intro
+// +kubebuilder:subresource:status
 
 // Website is the Schema for the websites API
 type Website struct {

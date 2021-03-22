@@ -2,6 +2,7 @@ apiVersion: webapp.ronething.cn/v1
 kind: Website
 metadata:
   name: website-sample
+  namespace: dev
 spec:
   # Add fields here
   # foo: bar
