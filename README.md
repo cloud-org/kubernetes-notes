@@ -15,8 +15,8 @@
 
 ### 搭建集群
 
-- (kind)[https://kind.sigs.k8s.io/docs/user/quick-start/]
-- (kubeadm)[https://kubernetes.io/docs/setup/production-environment/tools/kubeadm/create-cluster-kubeadm/]
+- [kind](https://kind.sigs.k8s.io/docs/user/quick-start/)
+- [kubeadm](https://kubernetes.io/docs/setup/production-environment/tools/kubeadm/create-cluster-kubeadm/)
 
 ### client-go
 
