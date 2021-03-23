@@ -30,7 +30,7 @@ func echoWsHandler(c echo.Context) error {
 	restConf, err := util.GetRestConf()
 	if err != nil {
 		log.Printf("get rest conf err:%v\n", err)
-		return err
+		return nil
 	}
 
 	sshReq := storage.KubeClient.CoreV1().RESTClient().Post().
@@ -52,7 +52,7 @@ func echoWsHandler(c echo.Context) error {
 	executor, err := remotecommand.NewSPDYExecutor(restConf, "POST", sshReq.URL())
 	if err != nil {
 		log.Printf("init executor err:%v\n", err)
-		return err
+		return nil
 	}
 
 	handler := storage.NewStreamHandler(wsConn, make(chan remotecommand.TerminalSize))
@@ -65,7 +65,7 @@ func echoWsHandler(c echo.Context) error {
 	})
 	if err != nil {
 		log.Printf("fix stream handler err:%v\n", err)
-		return err
+		return nil
 	}
 
 	return nil
