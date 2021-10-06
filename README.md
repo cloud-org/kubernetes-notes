@@ -25,3 +25,4 @@
 ### acknowledgement
 
 - [k8s-client-go](https://github.com/owenliang/k8s-client-go)
+- 《Kubernetes 权威指南》
