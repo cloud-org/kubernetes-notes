@@ -25,4 +25,5 @@
 ### acknowledgement
 
 - [k8s-client-go](https://github.com/owenliang/k8s-client-go)
-- 《Kubernetes 权威指南》
+- Kubernetes 权威指南(看了一点)
+- https://github.com/caicloud/kube-ladder
