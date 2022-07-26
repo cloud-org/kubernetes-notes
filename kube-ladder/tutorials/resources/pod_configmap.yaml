@@ -7,7 +7,7 @@ spec:
   restartPolicy: Never
   containers:
     - name: test-container
-      image: cargo.caicloud.io/caicloud/busybox:1.26
+      image: busybox:1.26
       command: ["/bin/sh"]
       args: ["-c", "cat /etc/config/game.properties && cat /etc/config/ui.properties"]
       volumeMounts:
