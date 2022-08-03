@@ -1,0 +1,29 @@
+apiVersion: v1
+kind: Pod
+metadata:
+  namespace: tutorial
+  name: pod-configmap1
+spec:
+  restartPolicy: Never
+  containers:
+    - name: test-container
+      image: busybox:1.26
+      command: ["/bin/sh", "-c", "env"]
+      env:
+        - name: GAME
+          valueFrom:
+            configMapKeyRef:
+              name: game-config
+              key: game.properties
+        - name: UI
+          valueFrom:
+            configMapKeyRef:
+              name: game-config
+              key: ui.properties
+      resources:
+        requests:
+          cpu: "0.1"
+          memory: "100Mi"
+        limits:
+          cpu: "0.1"
+          memory: "100Mi"

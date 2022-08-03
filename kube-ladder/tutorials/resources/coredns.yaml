@@ -92,7 +92,7 @@ spec:
           operator: "Exists"
       containers:
       - name: coredns
-        image: cargo.caicloud.io/caicloud/coredns:1.2.2
+        image: coredns/coredns:1.2.2
         imagePullPolicy: IfNotPresent
         resources:
           limits:
